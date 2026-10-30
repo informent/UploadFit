@@ -1,0 +1,170 @@
+<Window x:Class="UploadFit.App.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="UploadFit" Width="1280" Height="830"
+        MinWidth="1020" MinHeight="720" WindowStartupLocation="CenterScreen" AllowDrop="True"
+        Drop="Window_Drop" DragOver="Window_DragOver" PreviewKeyDown="Window_KeyDown" Closing="Window_Closing">
+  <Grid x:Name="RootGrid">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="250"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Border Background="#222A24" Grid.RowSpan="3">
+      <Grid Margin="18,22,18,18">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="5,0,0,25">
+          <Border Background="#E7EEDC" Width="32" Height="32" CornerRadius="6" Margin="0,0,10,0">
+            <Path Data="M 8,9 L 8,20 L 20,20 M 12,8 L 23,8 L 23,17 M 12,17 L 23,6" Stroke="#293327" StrokeThickness="2" Stretch="None"/>
+          </Border>
+          <TextBlock Text="UploadFit" Foreground="#F1F4EB" FontSize="23" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        </StackPanel>
+        <Button x:Name="AddButton" Grid.Row="1" Content="+  Add clips" Click="Add_Click" Background="#E7EEDC" BorderThickness="0" HorizontalContentAlignment="Left" ToolTip="Add local videos (Ctrl+O)" AutomationProperties.AutomationId="AddClips"/>
+        <DockPanel Grid.Row="2" Margin="5,22,0,10">
+          <Button x:Name="ClearButton" DockPanel.Dock="Right" Content="Clear done" Click="Clear_Click" Style="{StaticResource QuietButton}" Foreground="#CED6C9" FontSize="11"/>
+          <TextBlock x:Name="QueueCount" Text="QUEUE / 0" Foreground="#A9B6A4" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        </DockPanel>
+        <ListBox x:Name="ClipList" Grid.Row="3" Background="Transparent" BorderThickness="0" Foreground="White"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="Clip_Changed" AutomationProperties.AutomationId="ClipQueue">
+          <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+              <Setter Property="Padding" Value="12"/><Setter Property="Margin" Value="0,0,0,6"/>
+              <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+              <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
+                <Border x:Name="Row" Background="Transparent" CornerRadius="5" Padding="{TemplateBinding Padding}" BorderThickness="1" BorderBrush="Transparent"><ContentPresenter/></Border>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="IsSelected" Value="True"><Setter TargetName="Row" Property="Background" Value="#384637"/><Setter TargetName="Row" Property="BorderBrush" Value="#6A7E61"/></Trigger>
+                  <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Row" Property="BorderBrush" Value="#6A7E61"/></Trigger>
+                  <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Row" Property="BorderBrush" Value="#EDF2E4"/></Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate></Setter.Value></Setter>
+            </Style>
+          </ListBox.ItemContainerStyle>
+          <ListBox.ItemTemplate><DataTemplate>
+            <StackPanel>
+              <TextBlock Text="{Binding Name}" Foreground="#F0F4EA" FontSize="13" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
+              <TextBlock Text="{Binding Summary}" Foreground="#B9C1B7" FontSize="11" Margin="0,5,0,7"/>
+              <TextBlock Text="{Binding Status}" Foreground="{Binding StatusColor}" FontSize="11"/>
+            </StackPanel>
+          </DataTemplate></ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="4" Margin="0,18,0,0">
+          <Button x:Name="EngineButton" Content="Engine setup" Click="Engine_Click" Style="{StaticResource QuietButton}" Foreground="#E2E8DC" HorizontalAlignment="Left"/>
+          <Button Content="Help and shortcuts" Click="Help_Click" Style="{StaticResource QuietButton}" Foreground="#B8C4B2" HorizontalAlignment="Left"/>
+          <Border BorderBrush="#43503E" BorderThickness="0,1,0,0" Margin="5,14,5,0" Padding="0,14,0,0">
+            <TextBlock Text="LOCAL VIDEO TOOLS&#10;0.1.0 preview / informent" Foreground="#A9B6A4" FontSize="10" LineHeight="17"/>
+          </Border>
+        </StackPanel>
+      </Grid>
+    </Border>
+    <Grid Grid.Column="1">
+      <Grid.RowDefinitions><RowDefinition Height="74"/><RowDefinition Height="*"/><RowDefinition Height="112"/></Grid.RowDefinitions>
+      <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="28,0">
+        <DockPanel LastChildFill="True">
+          <Border DockPanel.Dock="Right" VerticalAlignment="Center" Background="#E5EADD" CornerRadius="4" Padding="10,6"><TextBlock Text="Your clips stay on this computer" FontSize="11" Foreground="#475B3F"/></Border>
+          <StackPanel VerticalAlignment="Center"><TextBlock Text="Fit a clip. Keep the moment." FontSize="20" FontWeight="SemiBold"/><TextBlock Text="Video compression for sharing" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,4,0,0"/></StackPanel>
+        </DockPanel>
+      </Border>
+      <Grid Grid.Row="1" Margin="28,22,28,18">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="270"/></Grid.ColumnDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,3,0">
+          <StackPanel>
+            <DockPanel Margin="0,0,0,14">
+              <Button x:Name="RemoveButton" Content="Remove" Click="Remove_Click" DockPanel.Dock="Right" Style="{StaticResource QuietButton}" FontSize="12" IsEnabled="False"/>
+              <StackPanel><TextBlock x:Name="ClipTitle" Text="Add your first clip" FontSize="17" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                <TextBlock x:Name="ClipDetails" Text="MP4, MOV, MKV, WebM and more" Foreground="{StaticResource Muted}" FontSize="11" Margin="0,5,0,0"/></StackPanel>
+            </DockPanel>
+            <Border Background="#191E1B" CornerRadius="6" Height="260" ClipToBounds="True">
+              <Grid>
+                <Image x:Name="FrameImage" Stretch="Uniform" AutomationProperties.Name="Selected video frame"/>
+                <StackPanel x:Name="EmptyPreview" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="24">
+                  <Path Data="M 4,4 L 40,4 L 40,30 L 4,30 Z M 18,10 L 28,17 L 18,24 Z" Stroke="#9EAC94" StrokeThickness="1.5" Width="44" Height="34" Margin="0,0,0,18"/>
+                  <TextBlock x:Name="PreviewHint" Text="Drop videos here" Foreground="#EBF0E6" FontSize="17" TextAlignment="Center"/>
+                  <TextBlock Text="Or choose Add clips to browse" Foreground="#A7B29F" FontSize="12" Margin="0,8,0,0" TextAlignment="Center"/>
+                </StackPanel>
+                <Border x:Name="FrameBusy" Visibility="Collapsed" Background="#C4191E1B" VerticalAlignment="Bottom" Padding="10"><TextBlock Text="Loading frame..." Foreground="White" FontSize="12"/></Border>
+              </Grid>
+            </Border>
+            <Grid Margin="0,10,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions>
+              <Slider x:Name="Scrubber" Minimum="0" Maximum="1" IsEnabled="False" ValueChanged="Scrubber_Changed" VerticalAlignment="Center" AutomationProperties.Name="Preview position"/>
+              <TextBlock x:Name="PositionLabel" Grid.Column="1" Text="00:00:00.000" FontFamily="Consolas" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+            <Grid x:Name="TrimPanel" IsEnabled="False" Margin="0,6,0,0">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+              <StackPanel><TextBlock Text="START" Style="{StaticResource Label}"/><TextBox x:Name="StartBox" Text="00:00:00.000" FontFamily="Consolas" TextChanged="Settings_Changed" AutomationProperties.Name="Trim start"/>
+                <Button Content="Use current frame" Click="SetStart_Click" Style="{StaticResource QuietButton}" FontSize="11" HorizontalAlignment="Left"/></StackPanel>
+              <StackPanel Grid.Column="2"><TextBlock Text="END" Style="{StaticResource Label}"/><TextBox x:Name="EndBox" Text="00:00:00.000" FontFamily="Consolas" TextChanged="Settings_Changed" AutomationProperties.Name="Trim end"/>
+                <Button Content="Use current frame" Click="SetEnd_Click" Style="{StaticResource QuietButton}" FontSize="11" HorizontalAlignment="Left"/></StackPanel>
+            </Grid>
+            <DockPanel Margin="0,10,0,0">
+              <Button x:Name="PlayButton" Content="Play selection" IsEnabled="False" Click="Play_Click" DockPanel.Dock="Left" FontSize="12"/>
+              <TextBlock x:Name="SelectionLabel" Text="Preview opens in a separate player" Foreground="{StaticResource Muted}" FontSize="11" VerticalAlignment="Center" Margin="12,0,0,0"/>
+            </DockPanel>
+            <Border x:Name="ResultPanel" Visibility="Collapsed" BorderBrush="#AFC7A2" BorderThickness="1" Background="#E7EFDF" CornerRadius="5" Padding="14" Margin="0,18,0,0">
+              <StackPanel><TextBlock x:Name="ResultTitle" FontWeight="SemiBold" Foreground="#2E5424"/><TextBlock x:Name="ResultDetail" Foreground="#42603A" FontSize="12" Margin="0,6,0,10"/>
+                <WrapPanel><Button Content="Show file" Click="ShowFile_Click" FontSize="12" Margin="0,0,8,0"/><Button Content="Copy file" Click="CopyFile_Click" FontSize="12"/></WrapPanel>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel>
+            <TextBlock Text="EXPORT SETTINGS" Style="{StaticResource Label}" Margin="0,4,0,16"/>
+            <StackPanel x:Name="SettingsPanel">
+              <TextBlock Text="File size limit" FontWeight="SemiBold" Margin="0,0,0,9"/>
+              <WrapPanel Margin="0,0,0,9"><Button Content="10 MB" Tag="10" Click="Preset_Click" Padding="10,7" Margin="0,0,6,6" FontSize="12"/><Button Content="20 MB" Tag="20" Click="Preset_Click" Padding="10,7" Margin="0,0,6,6" FontSize="12"/><Button Content="50 MB" Tag="50" Click="Preset_Click" Padding="10,7" Margin="0,0,0,6" FontSize="12"/></WrapPanel>
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
+                <TextBox x:Name="LimitBox" Text="20" TextChanged="Settings_Changed" FontSize="18" FontWeight="SemiBold" AutomationProperties.Name="Maximum file size in MB"/>
+                <TextBlock Grid.Column="1" Text="MB" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{StaticResource Muted}"/>
+              </Grid>
+              <TextBlock Text="Custom: 1 to 500 MB. Pick the limit shown in your app." Foreground="{StaticResource Muted}" FontSize="11" Margin="0,8,0,20"/>
+              <TextBlock Text="Encoding effort" Style="{StaticResource Label}"/>
+              <ComboBox x:Name="SpeedBox" SelectedIndex="1" SelectionChanged="Settings_Changed" AutomationProperties.Name="Encoding effort">
+                <ComboBoxItem Content="Fast"/><ComboBoxItem Content="Balanced"/><ComboBoxItem Content="Careful"/>
+              </ComboBox>
+              <TextBlock Text="Careful spends more time preserving detail." Foreground="{StaticResource Muted}" FontSize="11" Margin="0,7,0,17"/>
+              <TextBlock Text="Resolution" Style="{StaticResource Label}"/>
+              <ComboBox x:Name="ResolutionBox" SelectedIndex="0" SelectionChanged="Settings_Changed" Margin="0,0,0,15" AutomationProperties.Name="Resolution">
+                <ComboBoxItem Content="Auto / fit the size budget"/><ComboBoxItem Content="Up to 1080p"/><ComboBoxItem Content="Up to 720p"/><ComboBoxItem Content="Up to 480p"/><ComboBoxItem Content="Keep source dimensions"/>
+              </ComboBox>
+              <TextBlock Text="Frame rate" Style="{StaticResource Label}"/>
+              <ComboBox x:Name="FpsBox" SelectedIndex="0" SelectionChanged="Settings_Changed" Margin="0,0,0,11" AutomationProperties.Name="Frame rate">
+                <ComboBoxItem Content="Up to 30 fps / smaller files"/><ComboBoxItem Content="Up to 60 fps / smoother motion"/>
+              </ComboBox>
+              <CheckBox x:Name="MuteBox" Content="Remove audio" Checked="Settings_Changed" Unchecked="Settings_Changed" Margin="0,0,0,13"/>
+              <Button x:Name="ApplyButton" Content="Apply settings to queued clips" Click="Apply_Click" FontSize="11" IsEnabled="False"/>
+              <TextBlock Text="Trims stay individual." Foreground="{StaticResource Muted}" FontSize="11" Margin="0,6,0,0"/>
+            </StackPanel>
+            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0,15,0,0" Margin="0,20,0,0">
+              <StackPanel><TextBlock x:Name="PlanLabel" Text="MP4 / H.264 video + AAC audio" FontWeight="SemiBold" FontSize="12"/><TextBlock x:Name="PlanNote" Text="Finished files are checked against your size limit." Foreground="{StaticResource Muted}" FontSize="12" Margin="0,7,0,0"/></StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+      <Border Grid.Row="2" Background="#ECEEE6" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="28,13">
+        <Grid>
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
+          <StackPanel>
+            <DockPanel><Button x:Name="FolderButton" Content="Change folder" Click="Folder_Click" DockPanel.Dock="Right" Style="{StaticResource QuietButton}" FontSize="11" Padding="8,0" MinHeight="24"/>
+              <TextBlock x:Name="OutputLabel" Text="Save to: Videos / UploadFit" Foreground="{StaticResource Muted}" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+            </DockPanel>
+            <TextBlock x:Name="StatusLabel" Text="Checking video engine..." FontSize="12" Margin="0,7,0,7" AutomationProperties.LiveSetting="Polite"/>
+            <ProgressBar x:Name="WorkProgress" Maximum="1" Value="0"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" VerticalAlignment="Center">
+            <Button x:Name="ExportButton" Content="Export queue" Click="Export_Click" Style="{StaticResource PrimaryButton}" IsEnabled="False" AutomationProperties.AutomationId="ExportQueue"/>
+            <Button x:Name="CancelButton" Content="Cancel" Click="Cancel_Click" Visibility="Collapsed" Style="{StaticResource QuietButton}" FontSize="12"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Grid>
+    <Border x:Name="SetupOverlay" Grid.Column="1" Background="#DC222A24" Visibility="Collapsed" Panel.ZIndex="5">
+      <Border Background="{StaticResource Paper}" CornerRadius="8" Padding="30" Width="480" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel><TextBlock Text="Set up the video engine" FontSize="24" FontWeight="SemiBold"/>
+          <TextBlock Text="UploadFit uses FFmpeg to read and compress your videos. Download it once, then work offline." Foreground="{StaticResource Muted}" Margin="0,13,0,15" LineHeight="21"/>
+          <TextBlock Text="FFmpeg 9.0.2 / about 109 MB&#10;Published by Gyan Doshi. Verified with SHA-256.&#10;Stored in your Windows user folder." Foreground="{StaticResource Muted}" FontSize="12" LineHeight="20"/>
+          <TextBlock x:Name="SetupStatus" Text="No videos are sent during setup or compression." Margin="0,18,0,12" TextWrapping="Wrap" FontSize="12" AutomationProperties.LiveSetting="Polite"/>
+          <ProgressBar x:Name="SetupProgress" Maximum="1" Margin="0,0,0,17"/>
+          <Button x:Name="DownloadButton" Content="Download video engine" Click="Download_Click" Style="{StaticResource PrimaryButton}"/>
+          <Button x:Name="ImportEngineButton" Content="Use a downloaded engine ZIP" Click="ImportEngine_Click" Margin="0,8,0,0"/>
+          <Button x:Name="CloseSetupButton" Content="Later" Click="CloseSetup_Click" Style="{StaticResource QuietButton}" Margin="0,8,0,0"/>
+          <Button Content="Engine source and license" Click="EngineSource_Click" Style="{StaticResource QuietButton}" FontSize="11"/>
+        </StackPanel>
+      </Border>
+    </Border>
+  </Grid>
+</Window>

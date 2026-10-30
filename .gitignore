@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+artifacts/
+.vs/
+*.user
+*.log
+test-results/
+engine/
+installer-payload/
+installer-output/
+.DS_Store
