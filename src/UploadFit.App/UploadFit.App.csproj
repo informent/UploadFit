@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>UploadFit</AssemblyName>
+    <Product>UploadFit</Product>
+    <Title>UploadFit</Title>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+  <ItemGroup><ProjectReference Include="../UploadFit.Core/UploadFit.Core.csproj" /></ItemGroup>
+</Project>

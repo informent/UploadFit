@@ -1,0 +1,51 @@
+name: Windows build and media checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Build and test with the pinned video engine
+        shell: pwsh
+        run: ./scripts/Test-UploadFit.ps1 -DownloadEngine
+      - name: Build and verify the self-contained preview
+        shell: pwsh
+        run: |
+          $reports = @(Get-ChildItem -Path artifacts/validation-*/VALIDATION.json)
+          if ($reports.Count -ne 1) { throw 'Expected exactly one completed validation report.' }
+          ./scripts/Build-Package.ps1 -ValidationReport $reports[0].FullName
+      - name: Keep validation results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-validation
+          path: |
+            artifacts/validation-*/validation.log
+            artifacts/validation-*/VALIDATION.json
+          if-no-files-found: warn
+      - name: Keep the verified preview package
+        uses: actions/upload-artifact@v7
+        with:
+          name: uploadfit-preview-win-x64
+          path: |
+            artifacts/package-*/*-preview.zip
+            artifacts/package-*/PACKAGE-VALIDATION.json
+            artifacts/package-*/SHA256SUMS
+          if-no-files-found: error
